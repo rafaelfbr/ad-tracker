@@ -139,9 +139,9 @@ export default function DashboardPage() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-muted-foreground">Total</p>
-                <p className="text-3xl font-bold text-foreground mt-1">
+                <div className="text-3xl font-bold text-foreground mt-1">
                   {loading ? <Skeleton className="h-9 w-12" /> : totalTrackers}
-                </p>
+                </div>
               </div>
               <div className="stat-icon-blue w-11 h-11 rounded-xl flex items-center justify-center">
                 <BarChart3 className="w-5 h-5" />
@@ -153,9 +153,9 @@ export default function DashboardPage() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-muted-foreground">Ativos</p>
-                <p className="text-3xl font-bold mt-1" style={{ color: "oklch(0.45 0.18 160)" }}>
+                <div className="text-3xl font-bold mt-1" style={{ color: "oklch(0.45 0.18 160)" }}>
                   {loading ? <Skeleton className="h-9 w-12" /> : activeTrackers}
-                </p>
+                </div>
               </div>
               <div className="stat-icon-emerald w-11 h-11 rounded-xl flex items-center justify-center">
                 <TrendingUp className="w-5 h-5" />
@@ -167,9 +167,9 @@ export default function DashboardPage() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-muted-foreground">Pausados</p>
-                <p className="text-3xl font-bold mt-1" style={{ color: "oklch(0.55 0.15 80)" }}>
+                <div className="text-3xl font-bold mt-1" style={{ color: "oklch(0.55 0.15 80)" }}>
                   {loading ? <Skeleton className="h-9 w-12" /> : pausedTrackers}
-                </p>
+                </div>
               </div>
               <div className="stat-icon-amber w-11 h-11 rounded-xl flex items-center justify-center">
                 <Pause className="w-5 h-5" />
