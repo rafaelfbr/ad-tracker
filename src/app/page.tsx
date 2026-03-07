@@ -2,11 +2,22 @@
 
 import { useEffect, useState } from "react"
 import Link from "next/link"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Skeleton } from "@/components/ui/skeleton"
 import { toast } from "sonner"
+import {
+  Eye,
+  Plus,
+  RefreshCw,
+  History,
+  Trash2,
+  Loader2,
+  BarChart3,
+  TrendingUp,
+  Pause,
+  FileText,
+  ExternalLink,
+} from "lucide-react"
 import type { TrackerWithLastResult } from "@/lib/database.types"
 
 export default function DashboardPage() {
@@ -14,7 +25,6 @@ export default function DashboardPage() {
   const [loading, setLoading] = useState(true)
   const [scrapingIds, setScrapingIds] = useState<Set<string>>(new Set())
 
-  // Buscar trackers ao montar o componente
   useEffect(() => {
     fetchTrackers()
   }, [])
@@ -33,7 +43,6 @@ export default function DashboardPage() {
     }
   }
 
-  // Scraping manual
   async function handleScrape(trackerId: string) {
     setScrapingIds((prev) => new Set(prev).add(trackerId))
     try {
@@ -43,7 +52,7 @@ export default function DashboardPage() {
       const data = await res.json()
       if (!res.ok) throw new Error(data.error)
       toast.success(`Coleta concluída: ${data.ad_count} anúncios`)
-      fetchTrackers() // Atualizar lista
+      fetchTrackers()
     } catch (error) {
       toast.error(`Erro na coleta: ${(error as Error).message}`)
     } finally {
@@ -55,7 +64,6 @@ export default function DashboardPage() {
     }
   }
 
-  // Reativar tracker
   async function handleReactivate(trackerId: string) {
     try {
       const res = await fetch(`/api/trackers/${trackerId}/reactivate`, {
@@ -70,7 +78,6 @@ export default function DashboardPage() {
     }
   }
 
-  // Excluir tracker
   async function handleDelete(trackerId: string) {
     if (!confirm("Tem certeza que deseja excluir este rastreamento e todo o histórico?")) return
     try {
@@ -86,7 +93,6 @@ export default function DashboardPage() {
     }
   }
 
-  // Formatar data para pt-BR
   function formatDate(dateStr: string | null) {
     if (!dateStr) return "—"
     return new Date(dateStr).toLocaleString("pt-BR", {
@@ -98,246 +104,229 @@ export default function DashboardPage() {
     })
   }
 
+  // Métricas calculadas
+  const totalTrackers = trackers.length
+  const activeTrackers = trackers.filter((t) => t.status === "active").length
+  const pausedTrackers = trackers.filter((t) => t.status === "paused").length
+
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen bg-subtle">
       {/* Header */}
-      <header className="border-b border-border/50 glass-card sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+      <header className="header-premium sticky top-0 z-50">
+        <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-lg bg-primary/20 flex items-center justify-center">
-              <svg
-                className="w-5 h-5 text-primary"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-                strokeWidth={2}
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-                />
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
-                />
-              </svg>
+            <div className="w-9 h-9 rounded-xl bg-primary flex items-center justify-center btn-glow">
+              <Eye className="w-5 h-5 text-primary-foreground" />
             </div>
-            <h1 className="text-xl font-bold gradient-text">Ad Tracker</h1>
+            <div>
+              <h1 className="text-lg font-bold text-foreground tracking-tight">Ad Tracker</h1>
+            </div>
           </div>
           <Link href="/new">
-            <Button className="gap-2 cursor-pointer">
-              <svg
-                className="w-4 h-4"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-                strokeWidth={2}
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M12 4v16m8-8H4"
-                />
-              </svg>
+            <Button className="gap-2 cursor-pointer btn-glow rounded-xl" size="sm">
+              <Plus className="w-4 h-4" />
               Novo Rastreamento
             </Button>
           </Link>
         </div>
       </header>
 
-      {/* Conteúdo principal */}
-      <main className="max-w-7xl mx-auto px-6 py-8">
-        {/* Resumo */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-          <Card className="glass-card gradient-border animate-fade-in">
-            <CardContent className="pt-6">
-              <p className="text-sm text-muted-foreground">Total de Rastreamentos</p>
-              <p className="text-3xl font-bold mt-1">{loading ? "—" : trackers.length}</p>
-            </CardContent>
-          </Card>
-          <Card className="glass-card gradient-border animate-fade-in" style={{ animationDelay: "0.1s" }}>
-            <CardContent className="pt-6">
-              <p className="text-sm text-muted-foreground">Ativos</p>
-              <p className="text-3xl font-bold mt-1 text-emerald-400">
-                {loading ? "—" : trackers.filter((t) => t.status === "active").length}
-              </p>
-            </CardContent>
-          </Card>
-          <Card className="glass-card gradient-border animate-fade-in" style={{ animationDelay: "0.2s" }}>
-            <CardContent className="pt-6">
-              <p className="text-sm text-muted-foreground">Pausados</p>
-              <p className="text-3xl font-bold mt-1 text-amber-400">
-                {loading ? "—" : trackers.filter((t) => t.status === "paused").length}
-              </p>
-            </CardContent>
-          </Card>
+      {/* Conteúdo */}
+      <main className="max-w-6xl mx-auto px-6 py-8">
+        {/* Stat cards */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
+          <div className="stat-card rounded-xl p-5 animate-fade-in">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-muted-foreground">Total</p>
+                <p className="text-3xl font-bold text-foreground mt-1">
+                  {loading ? <Skeleton className="h-9 w-12" /> : totalTrackers}
+                </p>
+              </div>
+              <div className="stat-icon-blue w-11 h-11 rounded-xl flex items-center justify-center">
+                <BarChart3 className="w-5 h-5" />
+              </div>
+            </div>
+          </div>
+
+          <div className="stat-card rounded-xl p-5 animate-fade-in" style={{ animationDelay: "0.08s" }}>
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-muted-foreground">Ativos</p>
+                <p className="text-3xl font-bold mt-1" style={{ color: "oklch(0.45 0.18 160)" }}>
+                  {loading ? <Skeleton className="h-9 w-12" /> : activeTrackers}
+                </p>
+              </div>
+              <div className="stat-icon-emerald w-11 h-11 rounded-xl flex items-center justify-center">
+                <TrendingUp className="w-5 h-5" />
+              </div>
+            </div>
+          </div>
+
+          <div className="stat-card rounded-xl p-5 animate-fade-in" style={{ animationDelay: "0.16s" }}>
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-muted-foreground">Pausados</p>
+                <p className="text-3xl font-bold mt-1" style={{ color: "oklch(0.55 0.15 80)" }}>
+                  {loading ? <Skeleton className="h-9 w-12" /> : pausedTrackers}
+                </p>
+              </div>
+              <div className="stat-icon-amber w-11 h-11 rounded-xl flex items-center justify-center">
+                <Pause className="w-5 h-5" />
+              </div>
+            </div>
+          </div>
         </div>
 
         {/* Lista de trackers */}
-        <div className="space-y-4">
-          <h2 className="text-lg font-semibold">Rastreamentos</h2>
+        <div className="space-y-3">
+          <div className="flex items-center justify-between mb-2">
+            <h2 className="text-base font-semibold text-foreground">Rastreamentos</h2>
+            <span className="text-xs text-muted-foreground">
+              {!loading && `${trackers.length} cadastrado(s)`}
+            </span>
+          </div>
 
           {loading ? (
-            <div className="space-y-4">
+            <div className="space-y-3">
               {[1, 2, 3].map((i) => (
-                <Skeleton key={i} className="h-40 w-full rounded-xl" />
+                <div key={i} className="card-premium rounded-xl p-5">
+                  <div className="flex items-start justify-between">
+                    <div className="space-y-2 flex-1">
+                      <Skeleton className="h-5 w-48" />
+                      <div className="flex gap-2">
+                        <Skeleton className="h-5 w-16 rounded-full" />
+                        <Skeleton className="h-5 w-20 rounded-full" />
+                      </div>
+                      <Skeleton className="h-4 w-64 mt-2" />
+                    </div>
+                    <Skeleton className="h-10 w-20" />
+                  </div>
+                </div>
               ))}
             </div>
           ) : trackers.length === 0 ? (
-            <Card className="glass-card border-dashed">
-              <CardContent className="pt-6 text-center py-12">
-                <div className="w-16 h-16 rounded-full bg-muted flex items-center justify-center mx-auto mb-4">
-                  <svg
-                    className="w-8 h-8 text-muted-foreground"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                    strokeWidth={1.5}
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m3.75 9v6m3-3H9m1.5-12H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z"
-                    />
-                  </svg>
-                </div>
-                <p className="text-muted-foreground mb-4">
-                  Nenhum rastreamento cadastrado ainda.
-                </p>
-                <Link href="/new">
-                  <Button>Criar Primeiro Rastreamento</Button>
-                </Link>
-              </CardContent>
-            </Card>
+            <div className="empty-state p-12 text-center animate-fade-in">
+              <div className="w-16 h-16 rounded-2xl bg-muted flex items-center justify-center mx-auto mb-4">
+                <FileText className="w-7 h-7 text-muted-foreground" />
+              </div>
+              <p className="text-foreground font-medium mb-1">
+                Nenhum rastreamento cadastrado
+              </p>
+              <p className="text-sm text-muted-foreground mb-5">
+                Comece monitorando os anúncios dos concorrentes
+              </p>
+              <Link href="/new">
+                <Button className="gap-2 cursor-pointer btn-glow rounded-xl">
+                  <Plus className="w-4 h-4" />
+                  Criar Primeiro Rastreamento
+                </Button>
+              </Link>
+            </div>
           ) : (
             trackers.map((tracker, index) => (
-              <Card
+              <div
                 key={tracker.id}
-                className="glass-card gradient-border animate-fade-in hover:border-primary/30 transition-all duration-300"
+                className="tracker-card rounded-xl p-5 animate-fade-in"
                 style={{ animationDelay: `${index * 0.05}s` }}
               >
-                <CardHeader className="pb-3">
-                  <div className="flex items-start justify-between">
-                    <div className="space-y-1">
-                      <CardTitle className="text-lg">{tracker.offer_name}</CardTitle>
-                      <div className="flex items-center gap-2">
-                        <Badge
-                          variant={tracker.status === "active" ? "default" : "secondary"}
-                          className={
-                            tracker.status === "active"
-                              ? "bg-emerald-500/20 text-emerald-400 border-emerald-500/30"
-                              : "bg-amber-500/20 text-amber-400 border-amber-500/30"
-                          }
-                        >
-                          {tracker.status === "active" ? "● Ativo" : "● Pausado"}
-                        </Badge>
-                        <Badge variant="outline" className="text-xs">
-                          {tracker.niche}
-                        </Badge>
-                      </div>
+                <div className="flex items-start justify-between gap-4">
+                  {/* Info do tracker */}
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 mb-2">
+                      <h3 className="font-semibold text-foreground truncate">{tracker.offer_name}</h3>
                     </div>
-                    <div className="text-right">
-                      <p className="text-3xl font-bold gradient-text">
-                        {tracker.last_ad_count ?? "—"}
-                      </p>
-                      <p className="text-xs text-muted-foreground">anúncios</p>
+                    <div className="flex items-center gap-2 mb-3">
+                      <span
+                        className={`inline-flex items-center text-xs font-semibold px-2.5 py-1 rounded-full ${
+                          tracker.status === "active"
+                            ? "badge-active status-dot-active"
+                            : "badge-paused status-dot-paused"
+                        }`}
+                      >
+                        {tracker.status === "active" ? "Ativo" : "Pausado"}
+                      </span>
+                      <span className="badge-niche text-xs px-2.5 py-1 rounded-full">
+                        {tracker.niche}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-4 text-xs text-muted-foreground">
+                      <a
+                        href={tracker.offer_url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-1 text-primary hover:underline truncate max-w-xs"
+                      >
+                        <ExternalLink className="w-3 h-3 flex-shrink-0" />
+                        {tracker.offer_url.length > 40
+                          ? tracker.offer_url.substring(0, 40) + "..."
+                          : tracker.offer_url}
+                      </a>
+                      <span>Coleta: {formatDate(tracker.last_scraped_at)}</span>
                     </div>
                   </div>
-                </CardHeader>
-                <CardContent>
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                    <div className="space-y-1 text-sm text-muted-foreground">
-                      <p>
-                        Oferta:{" "}
-                        <a
-                          href={tracker.offer_url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-primary hover:underline"
-                        >
-                          {tracker.offer_url.length > 50
-                            ? tracker.offer_url.substring(0, 50) + "..."
-                            : tracker.offer_url}
-                        </a>
-                      </p>
-                      <p>Última coleta: {formatDate(tracker.last_scraped_at)}</p>
-                    </div>
-                    <div className="flex items-center gap-2 flex-shrink-0">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => handleScrape(tracker.id)}
-                        disabled={scrapingIds.has(tracker.id)}
-                        className="cursor-pointer"
-                      >
-                        {scrapingIds.has(tracker.id) ? (
-                          <>
-                            <svg
-                              className="w-3 h-3 mr-1 animate-spin"
-                              fill="none"
-                              viewBox="0 0 24 24"
-                            >
-                              <circle
-                                className="opacity-25"
-                                cx="12"
-                                cy="12"
-                                r="10"
-                                stroke="currentColor"
-                                strokeWidth="4"
-                              />
-                              <path
-                                className="opacity-75"
-                                fill="currentColor"
-                                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
-                              />
-                            </svg>
-                            Coletando...
-                          </>
-                        ) : (
-                          "Coletar Agora"
-                        )}
-                      </Button>
-                      {tracker.status === "paused" && (
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => handleReactivate(tracker.id)}
-                          className="text-emerald-400 border-emerald-500/30 hover:bg-emerald-500/10 cursor-pointer"
-                        >
-                          Reativar
-                        </Button>
-                      )}
-                      <Link href={`/tracker/${tracker.id}`}>
-                        <Button variant="outline" size="sm" className="cursor-pointer">
-                          Ver Histórico
-                        </Button>
-                      </Link>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => handleDelete(tracker.id)}
-                        className="text-destructive hover:text-destructive cursor-pointer"
-                      >
-                        <svg
-                          className="w-4 h-4"
-                          fill="none"
-                          viewBox="0 0 24 24"
-                          stroke="currentColor"
-                          strokeWidth={2}
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-                          />
-                        </svg>
-                      </Button>
-                    </div>
+
+                  {/* Número de anúncios */}
+                  <div className="text-right flex-shrink-0">
+                    <p className="text-3xl font-extrabold count-display">
+                      {tracker.last_ad_count ?? "—"}
+                    </p>
+                    <p className="text-[11px] text-muted-foreground font-medium uppercase tracking-wider mt-0.5">
+                      anúncios
+                    </p>
                   </div>
-                </CardContent>
-              </Card>
+                </div>
+
+                {/* Ações */}
+                <div className="flex items-center gap-2 mt-4 pt-4 border-t border-border/60">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => handleScrape(tracker.id)}
+                    disabled={scrapingIds.has(tracker.id)}
+                    className="cursor-pointer rounded-lg text-xs h-8 gap-1.5"
+                  >
+                    {scrapingIds.has(tracker.id) ? (
+                      <>
+                        <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                        Coletando...
+                      </>
+                    ) : (
+                      <>
+                        <RefreshCw className="w-3.5 h-3.5" />
+                        Coletar
+                      </>
+                    )}
+                  </Button>
+                  {tracker.status === "paused" && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleReactivate(tracker.id)}
+                      className="cursor-pointer rounded-lg text-xs h-8 gap-1.5"
+                      style={{ color: "oklch(0.45 0.18 160)", borderColor: "oklch(0.6 0.15 160 / 0.3)" }}
+                    >
+                      <TrendingUp className="w-3.5 h-3.5" />
+                      Reativar
+                    </Button>
+                  )}
+                  <Link href={`/tracker/${tracker.id}`}>
+                    <Button variant="outline" size="sm" className="cursor-pointer rounded-lg text-xs h-8 gap-1.5">
+                      <History className="w-3.5 h-3.5" />
+                      Histórico
+                    </Button>
+                  </Link>
+                  <div className="flex-1" />
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => handleDelete(tracker.id)}
+                    className="cursor-pointer rounded-lg text-xs h-8 text-destructive hover:text-destructive hover:bg-destructive/5"
+                  >
+                    <Trash2 className="w-3.5 h-3.5" />
+                  </Button>
+                </div>
+              </div>
             ))
           )}
         </div>

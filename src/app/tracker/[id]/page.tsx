@@ -2,36 +2,27 @@
 
 import { useEffect, useState, use } from "react"
 import Link from "next/link"
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-} from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Skeleton } from "@/components/ui/skeleton"
-import { Separator } from "@/components/ui/separator"
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table"
 import { toast } from "sonner"
 import {
-  LineChart,
-  Line,
+  ArrowLeft,
+  RefreshCw,
+  TrendingUp,
+  Loader2,
+  BarChart3,
+  Calendar,
+  ExternalLink,
+  Clock,
+} from "lucide-react"
+import {
+  AreaChart,
+  Area,
   XAxis,
   YAxis,
   CartesianGrid,
   Tooltip,
   ResponsiveContainer,
-  Area,
-  AreaChart,
 } from "recharts"
 import type { Tracker, ScrapeResult } from "@/lib/database.types"
 
@@ -117,7 +108,7 @@ export default function TrackerDetailPage({
     })
   }
 
-  // Preparar dados para o gráfico
+  // Dados para o gráfico
   const chartData =
     tracker?.results.map((r) => ({
       date: formatShortDate(r.scraped_at),
@@ -127,16 +118,17 @@ export default function TrackerDetailPage({
 
   if (loading) {
     return (
-      <div className="min-h-screen">
-        <header className="border-b border-border/50 glass-card sticky top-0 z-50">
-          <div className="max-w-7xl mx-auto px-6 py-4">
-            <Skeleton className="h-8 w-48" />
+      <div className="min-h-screen bg-subtle">
+        <header className="header-premium sticky top-0 z-50">
+          <div className="max-w-6xl mx-auto px-6 h-16 flex items-center gap-3">
+            <Skeleton className="h-5 w-5 rounded" />
+            <Skeleton className="h-6 w-48" />
           </div>
         </header>
-        <main className="max-w-7xl mx-auto px-6 py-8 space-y-6">
-          <Skeleton className="h-32 w-full rounded-xl" />
+        <main className="max-w-6xl mx-auto px-6 py-8 space-y-4">
+          <Skeleton className="h-28 w-full rounded-xl" />
           <Skeleton className="h-80 w-full rounded-xl" />
-          <Skeleton className="h-64 w-full rounded-xl" />
+          <Skeleton className="h-48 w-full rounded-xl" />
         </main>
       </div>
     )
@@ -144,280 +136,268 @@ export default function TrackerDetailPage({
 
   if (!tracker) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <Card className="glass-card p-8 text-center">
+      <div className="min-h-screen bg-subtle flex items-center justify-center">
+        <div className="card-premium rounded-2xl p-10 text-center">
           <p className="text-muted-foreground mb-4">Rastreamento não encontrado</p>
           <Link href="/">
-            <Button>Voltar ao Dashboard</Button>
+            <Button className="cursor-pointer rounded-xl">Voltar ao Dashboard</Button>
           </Link>
-        </Card>
+        </div>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen bg-subtle">
       {/* Header */}
-      <header className="border-b border-border/50 glass-card sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-6 py-4 flex items-center gap-3">
-          <Link
-            href="/"
-            className="text-muted-foreground hover:text-foreground transition-colors"
-          >
-            <svg
-              className="w-5 h-5"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-              strokeWidth={2}
+      <header className="header-premium sticky top-0 z-50">
+        <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <Link href="/" className="text-muted-foreground hover:text-foreground transition-colors">
+              <ArrowLeft className="w-5 h-5" />
+            </Link>
+            <h1 className="text-lg font-bold text-foreground tracking-tight truncate">
+              {tracker.offer_name}
+            </h1>
+          </div>
+          <div className="flex gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleScrape}
+              disabled={scraping}
+              className="cursor-pointer rounded-lg text-xs h-8 gap-1.5"
             >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M10 19l-7-7m0 0l7-7m-7 7h18"
-              />
-            </svg>
-          </Link>
-          <h1 className="text-xl font-bold gradient-text">{tracker.offer_name}</h1>
+              {scraping ? (
+                <>
+                  <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                  Coletando...
+                </>
+              ) : (
+                <>
+                  <RefreshCw className="w-3.5 h-3.5" />
+                  Coletar Agora
+                </>
+              )}
+            </Button>
+            {tracker.status === "paused" && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleReactivate}
+                className="cursor-pointer rounded-lg text-xs h-8 gap-1.5"
+                style={{ color: "oklch(0.45 0.18 160)", borderColor: "oklch(0.6 0.15 160 / 0.3)" }}
+              >
+                <TrendingUp className="w-3.5 h-3.5" />
+                Reativar
+              </Button>
+            )}
+          </div>
         </div>
       </header>
 
-      <main className="max-w-7xl mx-auto px-6 py-8 space-y-6">
-        {/* Info do tracker */}
-        <Card className="glass-card gradient-border animate-fade-in">
-          <CardHeader>
-            <div className="flex items-start justify-between">
-              <div>
-                <CardTitle className="text-2xl">{tracker.offer_name}</CardTitle>
-                <CardDescription className="mt-2 space-y-1">
-                  <span className="flex items-center gap-2">
-                    <Badge
-                      variant={tracker.status === "active" ? "default" : "secondary"}
-                      className={
-                        tracker.status === "active"
-                          ? "bg-emerald-500/20 text-emerald-400 border-emerald-500/30"
-                          : "bg-amber-500/20 text-amber-400 border-amber-500/30"
-                      }
-                    >
-                      {tracker.status === "active" ? "● Ativo" : "● Pausado"}
-                    </Badge>
-                    <Badge variant="outline">{tracker.niche}</Badge>
-                  </span>
-                </CardDescription>
+      <main className="max-w-6xl mx-auto px-6 py-8 space-y-4">
+        {/* Info cards */}
+        <div className="grid grid-cols-1 sm:grid-cols-4 gap-3 animate-fade-in">
+          <div className="stat-card rounded-xl p-4">
+            <div className="flex items-center gap-2 mb-1">
+              <div className="stat-icon-blue w-7 h-7 rounded-lg flex items-center justify-center">
+                <BarChart3 className="w-3.5 h-3.5" />
               </div>
-              <div className="flex gap-2">
-                <Button
-                  variant="outline"
-                  onClick={handleScrape}
-                  disabled={scraping}
-                  className="cursor-pointer"
-                >
-                  {scraping ? (
-                    <>
-                      <svg
-                        className="w-4 h-4 mr-2 animate-spin"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                      >
-                        <circle
-                          className="opacity-25"
-                          cx="12"
-                          cy="12"
-                          r="10"
-                          stroke="currentColor"
-                          strokeWidth="4"
-                        />
-                        <path
-                          className="opacity-75"
-                          fill="currentColor"
-                          d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
-                        />
-                      </svg>
-                      Coletando...
-                    </>
-                  ) : (
-                    "Coletar Agora"
-                  )}
-                </Button>
-                {tracker.status === "paused" && (
-                  <Button
-                    variant="outline"
-                    onClick={handleReactivate}
-                    className="text-emerald-400 border-emerald-500/30 hover:bg-emerald-500/10 cursor-pointer"
-                  >
-                    Reativar
-                  </Button>
-                )}
-              </div>
+              <span className="text-xs text-muted-foreground font-medium">Status</span>
             </div>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-sm">
-              <div>
-                <p className="text-muted-foreground">URL da Oferta</p>
-                <a
-                  href={tracker.offer_url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-primary hover:underline break-all"
-                >
-                  {tracker.offer_url}
-                </a>
+            <span
+              className={`inline-flex items-center text-xs font-semibold px-2 py-0.5 rounded-full ${
+                tracker.status === "active"
+                  ? "badge-active status-dot-active"
+                  : "badge-paused status-dot-paused"
+              }`}
+            >
+              {tracker.status === "active" ? "Ativo" : "Pausado"}
+            </span>
+          </div>
+
+          <div className="stat-card rounded-xl p-4">
+            <div className="flex items-center gap-2 mb-1">
+              <div className="stat-icon-emerald w-7 h-7 rounded-lg flex items-center justify-center">
+                <ExternalLink className="w-3.5 h-3.5" />
               </div>
-              <div>
-                <p className="text-muted-foreground">Criado em</p>
-                <p>{formatDate(tracker.created_at)}</p>
-              </div>
-              <div>
-                <p className="text-muted-foreground">Rastreamento até</p>
-                <p>{formatDate(tracker.auto_track_until)}</p>
-              </div>
+              <span className="text-xs text-muted-foreground font-medium">Oferta</span>
             </div>
-          </CardContent>
-        </Card>
+            <a
+              href={tracker.offer_url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-xs text-primary hover:underline truncate block"
+            >
+              {tracker.offer_url.length > 30
+                ? tracker.offer_url.substring(0, 30) + "..."
+                : tracker.offer_url}
+            </a>
+          </div>
+
+          <div className="stat-card rounded-xl p-4">
+            <div className="flex items-center gap-2 mb-1">
+              <div className="stat-icon-amber w-7 h-7 rounded-lg flex items-center justify-center">
+                <Calendar className="w-3.5 h-3.5" />
+              </div>
+              <span className="text-xs text-muted-foreground font-medium">Criado em</span>
+            </div>
+            <p className="text-xs font-medium text-foreground">{formatDate(tracker.created_at)}</p>
+          </div>
+
+          <div className="stat-card rounded-xl p-4">
+            <div className="flex items-center gap-2 mb-1">
+              <div className="stat-icon-blue w-7 h-7 rounded-lg flex items-center justify-center">
+                <Clock className="w-3.5 h-3.5" />
+              </div>
+              <span className="text-xs text-muted-foreground font-medium">Rastreia até</span>
+            </div>
+            <p className="text-xs font-medium text-foreground">{formatDate(tracker.auto_track_until)}</p>
+          </div>
+        </div>
 
         {/* Gráfico */}
-        <Card className="glass-card gradient-border animate-fade-in" style={{ animationDelay: "0.1s" }}>
-          <CardHeader>
-            <CardTitle>Evolução de Anúncios</CardTitle>
-            <CardDescription>
+        <div className="card-premium rounded-2xl p-6 animate-fade-in" style={{ animationDelay: "0.1s" }}>
+          <div className="mb-4">
+            <h2 className="text-base font-semibold text-foreground">Evolução de Anúncios</h2>
+            <p className="text-xs text-muted-foreground mt-0.5">
               Quantidade de anúncios ativos ao longo do tempo
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            {chartData.length === 0 ? (
-              <div className="h-64 flex items-center justify-center text-muted-foreground">
-                <div className="text-center">
-                  <svg
-                    className="w-12 h-12 mx-auto mb-3 opacity-50"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                    strokeWidth={1.5}
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z"
-                    />
-                  </svg>
-                  <p>Nenhuma coleta registrada ainda</p>
-                  <p className="text-xs mt-1">
-                    Clique em &quot;Coletar Agora&quot; ou aguarde a coleta automática
-                  </p>
-                </div>
+            </p>
+          </div>
+          {chartData.length === 0 ? (
+            <div className="h-56 flex items-center justify-center">
+              <div className="text-center">
+                <BarChart3 className="w-10 h-10 mx-auto mb-2 text-muted-foreground/30" />
+                <p className="text-sm text-muted-foreground">Nenhuma coleta registrada</p>
+                <p className="text-xs text-muted-foreground mt-0.5">
+                  Clique em &quot;Coletar Agora&quot; ou aguarde a coleta automática
+                </p>
               </div>
-            ) : (
-              <ResponsiveContainer width="100%" height={300}>
-                <AreaChart data={chartData}>
-                  <defs>
-                    <linearGradient id="colorAnuncios" x1="0" y1="0" x2="0" y2="1">
-                      <stop
-                        offset="5%"
-                        stopColor="oklch(0.7 0.15 250)"
-                        stopOpacity={0.3}
-                      />
-                      <stop
-                        offset="95%"
-                        stopColor="oklch(0.7 0.15 250)"
-                        stopOpacity={0}
-                      />
-                    </linearGradient>
-                  </defs>
-                  <CartesianGrid
-                    strokeDasharray="3 3"
-                    stroke="oklch(0.28 0.02 260 / 0.5)"
-                  />
-                  <XAxis
-                    dataKey="date"
-                    stroke="oklch(0.6 0.03 260)"
-                    fontSize={12}
-                  />
-                  <YAxis
-                    stroke="oklch(0.6 0.03 260)"
-                    fontSize={12}
-                  />
-                  <Tooltip
-                    contentStyle={{
-                      backgroundColor: "oklch(0.17 0.015 260)",
-                      border: "1px solid oklch(0.28 0.02 260)",
-                      borderRadius: "8px",
-                      color: "oklch(0.93 0.01 260)",
-                    }}
-                    labelStyle={{ color: "oklch(0.6 0.03 260)" }}
-                  />
-                  <Area
-                    type="monotone"
-                    dataKey="anuncios"
-                    stroke="oklch(0.7 0.15 250)"
-                    strokeWidth={2}
-                    fill="url(#colorAnuncios)"
-                    dot={{
-                      fill: "oklch(0.7 0.15 250)",
-                      strokeWidth: 2,
-                      r: 4,
-                    }}
-                    activeDot={{
-                      r: 6,
-                      strokeWidth: 2,
-                    }}
-                  />
-                </AreaChart>
-              </ResponsiveContainer>
-            )}
-          </CardContent>
-        </Card>
+            </div>
+          ) : (
+            <ResponsiveContainer width="100%" height={280}>
+              <AreaChart data={chartData}>
+                <defs>
+                  <linearGradient id="colorAnuncios" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="oklch(0.5 0.18 260)" stopOpacity={0.15} />
+                    <stop offset="95%" stopColor="oklch(0.5 0.18 260)" stopOpacity={0} />
+                  </linearGradient>
+                </defs>
+                <CartesianGrid
+                  strokeDasharray="3 3"
+                  stroke="oklch(0.92 0.005 270)"
+                  vertical={false}
+                />
+                <XAxis
+                  dataKey="date"
+                  stroke="oklch(0.6 0.02 270)"
+                  fontSize={11}
+                  tickLine={false}
+                  axisLine={false}
+                />
+                <YAxis
+                  stroke="oklch(0.6 0.02 270)"
+                  fontSize={11}
+                  tickLine={false}
+                  axisLine={false}
+                />
+                <Tooltip
+                  contentStyle={{
+                    backgroundColor: "oklch(1 0 0)",
+                    border: "1px solid oklch(0.92 0.005 270)",
+                    borderRadius: "12px",
+                    boxShadow: "0 4px 16px oklch(0 0 0 / 0.08)",
+                    color: "oklch(0.15 0.01 270)",
+                    fontSize: "12px",
+                  }}
+                  labelStyle={{ color: "oklch(0.5 0.02 270)", fontWeight: 500 }}
+                />
+                <Area
+                  type="monotone"
+                  dataKey="anuncios"
+                  stroke="oklch(0.5 0.18 260)"
+                  strokeWidth={2.5}
+                  fill="url(#colorAnuncios)"
+                  dot={{
+                    fill: "oklch(0.5 0.18 260)",
+                    strokeWidth: 2,
+                    stroke: "#fff",
+                    r: 4,
+                  }}
+                  activeDot={{
+                    r: 6,
+                    strokeWidth: 2,
+                    stroke: "#fff",
+                  }}
+                />
+              </AreaChart>
+            </ResponsiveContainer>
+          )}
+        </div>
 
         {/* Tabela de resultados */}
-        <Card className="glass-card gradient-border animate-fade-in" style={{ animationDelay: "0.2s" }}>
-          <CardHeader>
-            <CardTitle>Histórico de Coletas</CardTitle>
-            <CardDescription>
+        <div className="card-premium rounded-2xl overflow-hidden animate-fade-in" style={{ animationDelay: "0.2s" }}>
+          <div className="p-6 pb-4">
+            <h2 className="text-base font-semibold text-foreground">Histórico de Coletas</h2>
+            <p className="text-xs text-muted-foreground mt-0.5">
               {tracker.results.length} coleta(s) registrada(s)
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            {tracker.results.length === 0 ? (
-              <p className="text-muted-foreground text-center py-8">
-                Nenhuma coleta registrada ainda
-              </p>
-            ) : (
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Data/Hora</TableHead>
-                    <TableHead>Anúncios</TableHead>
-                    <TableHead>Fonte</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {[...tracker.results].reverse().map((result) => (
-                    <TableRow key={result.id}>
-                      <TableCell>{formatDate(result.scraped_at)}</TableCell>
-                      <TableCell>
-                        <span className="font-semibold text-lg gradient-text">
+            </p>
+          </div>
+          {tracker.results.length === 0 ? (
+            <div className="px-6 pb-8 text-center">
+              <p className="text-sm text-muted-foreground">Nenhuma coleta registrada ainda</p>
+            </div>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="border-t border-border/60">
+                    <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                      Data/Hora
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                      Anúncios
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                      Fonte
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {[...tracker.results].reverse().map((result, i) => (
+                    <tr
+                      key={result.id}
+                      className={`border-t border-border/40 hover:bg-muted/30 transition-colors ${
+                        i % 2 === 0 ? "bg-muted/10" : ""
+                      }`}
+                    >
+                      <td className="px-6 py-3 text-foreground">
+                        {formatDate(result.scraped_at)}
+                      </td>
+                      <td className="px-6 py-3">
+                        <span className="font-bold text-base count-display">
                           {result.ad_count}
                         </span>
-                      </TableCell>
-                      <TableCell>
-                        <Badge
-                          variant="outline"
-                          className={
+                      </td>
+                      <td className="px-6 py-3">
+                        <span
+                          className={`inline-flex items-center text-xs font-medium px-2.5 py-1 rounded-full ${
                             result.source === "auto"
-                              ? "bg-blue-500/10 text-blue-400 border-blue-500/30"
-                              : "bg-violet-500/10 text-violet-400 border-violet-500/30"
-                          }
+                              ? "bg-blue-50 text-blue-600"
+                              : "bg-violet-50 text-violet-600"
+                          }`}
                         >
                           {result.source === "auto" ? "Automático" : "Manual"}
-                        </Badge>
-                      </TableCell>
-                    </TableRow>
+                        </span>
+                      </td>
+                    </tr>
                   ))}
-                </TableBody>
-              </Table>
-            )}
-          </CardContent>
-        </Card>
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
       </main>
     </div>
   )
