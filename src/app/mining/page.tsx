@@ -206,7 +206,7 @@ export default function MiningPage() {
             <div className="space-y-2">
               <Label htmlFor="minDays" className="flex items-center gap-1.5 text-sm font-medium">
                 <Calendar className="w-3.5 h-3.5" />
-                Dias rodando ativos
+                Mínimo de dias ativo
               </Label>
               <Input
                 id="minDays"
