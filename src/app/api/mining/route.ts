@@ -5,8 +5,8 @@ const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
 const supabaseServiceKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 const supabase = createClient(supabaseUrl, supabaseServiceKey)
 
-// Lista de domínios ignorados ao rastrear (se TODOS os criativos só tiverem esses domínios, ignora a página)
-const IGNORED_DOMAINS = ["api.whatsapp.com", "wa.me", "instagram.com", "facebook.com", "ig.me", "m.me"]
+// Lista de domínios ignorados ao rastrear (removido facebook/instagram.com pois ad_snapshot_url vem deles)
+const IGNORED_DOMAINS = ["api.whatsapp.com", "wa.me", "ig.me", "m.me"]
 
 interface MetaAd {
   page_id: string
@@ -138,11 +138,8 @@ export async function POST(request: Request) {
     // Filtrar e converter pra array final
     const finalResults = Array.from(pagesMap.values())
       .filter(p => p.count >= minAds)
-      // Se todos os anúncios ativarem a flag de ignorado, descarta a página
-      // Nota: o ad_snapshot_url da api contém o link temporário do fb, 
-      // mas alguns parâmetros da URL podem revelar o destino se tiver sorte.
-      // Se a filtragem ficar agressiva, podemos tirar.
-      .filter(p => p.count > p.ignored_count)
+      // Filtro removido pois o ad_snapshot_url não traz a URL final de forma confiável nesta versão da API
+      // .filter(p => p.count > p.ignored_count)
       .sort((a, b) => b.count - a.count)
 
     return NextResponse.json({
