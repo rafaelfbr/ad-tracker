@@ -10,16 +10,26 @@ import {
   ChevronLeft,
   ChevronRight,
   Settings,
+  Search,
   Menu,
   X,
 } from "lucide-react"
 
-// Itens de navegação
 const navItems = [
   {
     label: "Ofertas Marcadas",
     href: "/ofertas-marcadas",
     icon: LayoutDashboard,
+  },
+  {
+    label: "Mineração",
+    href: "/mining",
+    icon: Search,
+  },
+  {
+    label: "Configurações",
+    href: "/configuracoes",
+    icon: Settings,
   },
 ]
 
