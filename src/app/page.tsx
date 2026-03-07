@@ -18,6 +18,7 @@ import {
   FileText,
   ExternalLink,
 } from "lucide-react"
+import { UserButton } from "@clerk/nextjs"
 import type { TrackerWithLastResult } from "@/lib/database.types"
 
 export default function DashboardPage() {
@@ -122,12 +123,21 @@ export default function DashboardPage() {
               <h1 className="text-lg font-bold text-foreground tracking-tight">Ad Tracker</h1>
             </div>
           </div>
-          <Link href="/new">
-            <Button className="gap-2 cursor-pointer btn-glow rounded-xl" size="sm">
-              <Plus className="w-4 h-4" />
-              Novo Rastreamento
-            </Button>
-          </Link>
+          <div className="flex items-center gap-3">
+            <Link href="/new">
+              <Button className="gap-2 cursor-pointer btn-glow rounded-xl" size="sm">
+                <Plus className="w-4 h-4" />
+                Novo Rastreamento
+              </Button>
+            </Link>
+            <UserButton
+              appearance={{
+                elements: {
+                  avatarBox: "w-8 h-8",
+                },
+              }}
+            />
+          </div>
         </div>
       </header>
 
