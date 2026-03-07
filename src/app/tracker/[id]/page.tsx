@@ -108,7 +108,6 @@ export default function TrackerDetailPage({
     })
   }
 
-  // Dados para o gráfico
   const chartData =
     tracker?.results.map((r) => ({
       date: formatShortDate(r.scraped_at),
@@ -119,13 +118,13 @@ export default function TrackerDetailPage({
   if (loading) {
     return (
       <div className="min-h-screen bg-subtle">
-        <header className="header-premium sticky top-0 z-50">
-          <div className="max-w-6xl mx-auto px-6 h-16 flex items-center gap-3">
+        <div className="px-6 lg:px-8 pt-6 pb-2">
+          <div className="flex items-center gap-3">
             <Skeleton className="h-5 w-5 rounded" />
-            <Skeleton className="h-6 w-48" />
+            <Skeleton className="h-7 w-48" />
           </div>
-        </header>
-        <main className="max-w-6xl mx-auto px-6 py-8 space-y-4">
+        </div>
+        <main className="px-6 lg:px-8 py-6 space-y-4">
           <Skeleton className="h-28 w-full rounded-xl" />
           <Skeleton className="h-80 w-full rounded-xl" />
           <Skeleton className="h-48 w-full rounded-xl" />
@@ -149,16 +148,19 @@ export default function TrackerDetailPage({
 
   return (
     <div className="min-h-screen bg-subtle">
-      {/* Header */}
-      <header className="header-premium sticky top-0 z-50">
-        <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
+      {/* Page header */}
+      <div className="px-6 lg:px-8 pt-6 pb-2">
+        <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <Link href="/" className="text-muted-foreground hover:text-foreground transition-colors">
               <ArrowLeft className="w-5 h-5" />
             </Link>
-            <h1 className="text-lg font-bold text-foreground tracking-tight truncate">
-              {tracker.offer_name}
-            </h1>
+            <div>
+              <h1 className="text-2xl font-bold text-foreground tracking-tight truncate">
+                {tracker.offer_name}
+              </h1>
+              <p className="text-sm text-muted-foreground mt-0.5">Detalhes do rastreamento</p>
+            </div>
           </div>
           <div className="flex gap-2">
             <Button
@@ -194,9 +196,9 @@ export default function TrackerDetailPage({
             )}
           </div>
         </div>
-      </header>
+      </div>
 
-      <main className="max-w-6xl mx-auto px-6 py-8 space-y-4">
+      <main className="px-6 lg:px-8 py-6 space-y-4">
         {/* Info cards */}
         <div className="grid grid-cols-1 sm:grid-cols-4 gap-3 animate-fade-in">
           <div className="stat-card rounded-xl p-4">

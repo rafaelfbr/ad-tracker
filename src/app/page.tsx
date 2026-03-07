@@ -6,7 +6,6 @@ import { Button } from "@/components/ui/button"
 import { Skeleton } from "@/components/ui/skeleton"
 import { toast } from "sonner"
 import {
-  Eye,
   Plus,
   RefreshCw,
   History,
@@ -18,7 +17,6 @@ import {
   FileText,
   ExternalLink,
 } from "lucide-react"
-import { UserButton } from "@clerk/nextjs"
 import type { TrackerWithLastResult } from "@/lib/database.types"
 
 export default function DashboardPage() {
@@ -105,44 +103,30 @@ export default function DashboardPage() {
     })
   }
 
-  // Métricas calculadas
   const totalTrackers = trackers.length
   const activeTrackers = trackers.filter((t) => t.status === "active").length
   const pausedTrackers = trackers.filter((t) => t.status === "paused").length
 
   return (
     <div className="min-h-screen bg-subtle">
-      {/* Header */}
-      <header className="header-premium sticky top-0 z-50">
-        <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-primary flex items-center justify-center btn-glow">
-              <Eye className="w-5 h-5 text-primary-foreground" />
-            </div>
-            <div>
-              <h1 className="text-lg font-bold text-foreground tracking-tight">Ad Tracker</h1>
-            </div>
+      {/* Page header */}
+      <div className="px-6 lg:px-8 pt-6 pb-2">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-2xl font-bold text-foreground tracking-tight">Dashboard</h1>
+            <p className="text-sm text-muted-foreground mt-0.5">Visão geral dos rastreamentos</p>
           </div>
-          <div className="flex items-center gap-3">
-            <Link href="/new">
-              <Button className="gap-2 cursor-pointer btn-glow rounded-xl" size="sm">
-                <Plus className="w-4 h-4" />
-                Novo Rastreamento
-              </Button>
-            </Link>
-            <UserButton
-              appearance={{
-                elements: {
-                  avatarBox: "w-8 h-8",
-                },
-              }}
-            />
-          </div>
+          <Link href="/new">
+            <Button className="gap-2 cursor-pointer btn-glow rounded-xl h-10 px-4">
+              <Plus className="w-4 h-4" />
+              Novo Rastreamento
+            </Button>
+          </Link>
         </div>
-      </header>
+      </div>
 
       {/* Conteúdo */}
-      <main className="max-w-6xl mx-auto px-6 py-8">
+      <main className="px-6 lg:px-8 py-6">
         {/* Stat cards */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
           <div className="stat-card rounded-xl p-5 animate-fade-in">
@@ -241,7 +225,6 @@ export default function DashboardPage() {
                 style={{ animationDelay: `${index * 0.05}s` }}
               >
                 <div className="flex items-start justify-between gap-4">
-                  {/* Info do tracker */}
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-2">
                       <h3 className="font-semibold text-foreground truncate">{tracker.offer_name}</h3>
@@ -276,7 +259,6 @@ export default function DashboardPage() {
                     </div>
                   </div>
 
-                  {/* Número de anúncios */}
                   <div className="text-right flex-shrink-0">
                     <p className="text-3xl font-extrabold count-display">
                       {tracker.last_ad_count ?? "—"}
@@ -287,7 +269,6 @@ export default function DashboardPage() {
                   </div>
                 </div>
 
-                {/* Ações */}
                 <div className="flex items-center gap-2 mt-4 pt-4 border-t border-border/60">
                   <Button
                     variant="outline"

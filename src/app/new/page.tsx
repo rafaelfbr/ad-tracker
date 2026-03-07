@@ -62,18 +62,21 @@ export default function NewTrackerPage() {
 
   return (
     <div className="min-h-screen bg-subtle">
-      {/* Header */}
-      <header className="header-premium sticky top-0 z-50">
-        <div className="max-w-6xl mx-auto px-6 h-16 flex items-center gap-3">
+      {/* Page header */}
+      <div className="px-6 lg:px-8 pt-6 pb-2">
+        <div className="flex items-center gap-3">
           <Link href="/" className="text-muted-foreground hover:text-foreground transition-colors">
             <ArrowLeft className="w-5 h-5" />
           </Link>
-          <h1 className="text-lg font-bold text-foreground tracking-tight">Novo Rastreamento</h1>
+          <div>
+            <h1 className="text-2xl font-bold text-foreground tracking-tight">Novo Rastreamento</h1>
+            <p className="text-sm text-muted-foreground mt-0.5">Cadastrar monitoramento de anúncios</p>
+          </div>
         </div>
-      </header>
+      </div>
 
       {/* Formulário */}
-      <main className="max-w-xl mx-auto px-6 py-10">
+      <main className="max-w-xl mx-auto px-6 lg:px-8 py-8">
         <div className="card-premium rounded-2xl p-8 animate-fade-in">
           <div className="mb-6">
             <h2 className="text-xl font-bold text-foreground">Cadastrar Rastreamento</h2>
@@ -83,7 +86,6 @@ export default function NewTrackerPage() {
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-5">
-            {/* URL da Biblioteca */}
             <div className="space-y-2">
               <Label htmlFor="library_url" className="flex items-center gap-1.5 text-sm font-medium">
                 <LinkIcon className="w-3.5 h-3.5 text-muted-foreground" />
@@ -103,7 +105,6 @@ export default function NewTrackerPage() {
               </p>
             </div>
 
-            {/* Nome da Oferta */}
             <div className="space-y-2">
               <Label htmlFor="offer_name" className="flex items-center gap-1.5 text-sm font-medium">
                 <Tag className="w-3.5 h-3.5 text-muted-foreground" />
@@ -120,7 +121,6 @@ export default function NewTrackerPage() {
               />
             </div>
 
-            {/* Nicho */}
             <div className="space-y-2">
               <Label htmlFor="niche" className="flex items-center gap-1.5 text-sm font-medium">
                 <Layers className="w-3.5 h-3.5 text-muted-foreground" />
@@ -137,7 +137,6 @@ export default function NewTrackerPage() {
               />
             </div>
 
-            {/* URL da Oferta */}
             <div className="space-y-2">
               <Label htmlFor="offer_url" className="flex items-center gap-1.5 text-sm font-medium">
                 <Globe className="w-3.5 h-3.5 text-muted-foreground" />
@@ -157,7 +156,6 @@ export default function NewTrackerPage() {
               </p>
             </div>
 
-            {/* Info box */}
             <div className="info-box p-4 flex gap-3">
               <Info className="w-4 h-4 text-primary mt-0.5 flex-shrink-0" />
               <div className="text-sm">
@@ -169,7 +167,6 @@ export default function NewTrackerPage() {
               </div>
             </div>
 
-            {/* Botões */}
             <div className="flex gap-3 pt-3">
               <Button
                 type="submit"
