@@ -17,8 +17,8 @@ import {
 // Itens de navegação
 const navItems = [
   {
-    label: "Dashboard",
-    href: "/",
+    label: "Ofertas Marcadas",
+    href: "/ofertas-marcadas",
     icon: LayoutDashboard,
   },
 ]

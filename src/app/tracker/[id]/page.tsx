@@ -138,8 +138,8 @@ export default function TrackerDetailPage({
       <div className="min-h-screen bg-subtle flex items-center justify-center">
         <div className="card-premium rounded-2xl p-10 text-center">
           <p className="text-muted-foreground mb-4">Rastreamento não encontrado</p>
-          <Link href="/">
-            <Button className="cursor-pointer rounded-xl">Voltar ao Dashboard</Button>
+          <Link href="/ofertas-marcadas">
+            <Button className="cursor-pointer rounded-xl">Voltar ao painel de Ofertas Marcadas</Button>
           </Link>
         </div>
       </div>
@@ -152,7 +152,7 @@ export default function TrackerDetailPage({
       <div className="px-6 lg:px-8 pt-6 pb-2">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <Link href="/" className="text-muted-foreground hover:text-foreground transition-colors">
+            <Link href="/ofertas-marcadas" className="text-muted-foreground hover:text-foreground transition-colors">
               <ArrowLeft className="w-5 h-5" />
             </Link>
             <div>

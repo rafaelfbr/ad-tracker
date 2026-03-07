@@ -52,7 +52,7 @@ export default function NewTrackerPage() {
       if (!res.ok) throw new Error(data.error)
 
       toast.success("Rastreamento criado com sucesso!")
-      router.push("/")
+      router.push("/ofertas-marcadas")
     } catch (error) {
       toast.error(`Erro ao criar: ${(error as Error).message}`)
     } finally {
@@ -65,7 +65,7 @@ export default function NewTrackerPage() {
       {/* Page header */}
       <div className="px-6 lg:px-8 pt-6 pb-2">
         <div className="flex items-center gap-3">
-          <Link href="/" className="text-muted-foreground hover:text-foreground transition-colors">
+          <Link href="/ofertas-marcadas" className="text-muted-foreground hover:text-foreground transition-colors">
             <ArrowLeft className="w-5 h-5" />
           </Link>
           <div>
@@ -182,7 +182,7 @@ export default function NewTrackerPage() {
                   "Criar Rastreamento"
                 )}
               </Button>
-              <Link href="/">
+              <Link href="/ofertas-marcadas">
                 <Button
                   type="button"
                   variant="outline"
