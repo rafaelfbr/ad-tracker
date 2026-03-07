@@ -1,0 +1,26 @@
+{
+  "PT_ALL": {
+    "error": {
+      "message": "Application does not have permission for this action",
+      "type": "OAuthException",
+      "code": 10,
+      "error_subcode": 2332002,
+      "is_transient": false,
+      "error_user_title": "Autorização e login necessários",
+      "error_user_msg": "Para acessar a API, você precisa seguir as etapas em facebook.com/ads/library/api.",
+      "fbtrace_id": "ANx6iB3zXSAjFp-g7AwaqjA"
+    }
+  },
+  "BR_POLITICAL": {
+    "error": {
+      "message": "Application does not have permission for this action",
+      "type": "OAuthException",
+      "code": 10,
+      "error_subcode": 2332002,
+      "is_transient": false,
+      "error_user_title": "Autorização e login necessários",
+      "error_user_msg": "Para acessar a API, você precisa seguir as etapas em facebook.com/ads/library/api.",
+      "fbtrace_id": "Am96As71hQ1kE61rGSJTf9E"
+    }
+  }
+}

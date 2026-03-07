@@ -67,6 +67,7 @@ export async function POST(request: Request) {
       url.searchParams.append("search_terms", keyword)
       url.searchParams.append("ad_reached_countries", `['${country}']`)
       url.searchParams.append("ad_active_status", "ACTIVE")
+      url.searchParams.append("ad_type", "ALL") // NECESSÁRIO p/ busca geral
       url.searchParams.append("fields", "page_id,page_name,ad_delivery_start_time,ad_snapshot_url")
       url.searchParams.append("limit", "100") // 100 por paginação pra ser mais rápido que o max 1000
       
@@ -79,7 +80,8 @@ export async function POST(request: Request) {
 
       if (!res.ok) {
         const err = data as any
-        throw new Error(err.error?.message || "Erro na Meta API")
+        const metaMessage = err.error?.error_user_msg || err.error?.message || "Erro desconhecido na Meta API"
+        throw new Error(`Meta API: ${metaMessage}`)
       }
 
       const ads = data.data || []
