@@ -11,11 +11,23 @@ async function testV25() {
   const token = data?.value;
   if (!token) return console.log("No token in DB");
 
-  const queryParams = `?access_token=${token}&search_terms=marketing&ad_reached_countries=['BR']&ad_active_status=ACTIVE&ad_type=ALL&fields=page_id,page_name&limit=1`;
+  const queryParams = `?access_token=${token}&search_terms=marketing&ad_reached_countries=['BR']&ad_active_status=ACTIVE&ad_type=ALL&fields=page_id,page_name,ad_delivery_start_time,ad_snapshot_url&limit=5`;
 
-  console.log("---- Testando v25.0 (Versão atual da sua print) ----");
   const res25 = await fetch("https://graph.facebook.com/v25.0/ads_archive" + queryParams);
-  console.log(await res25.json());
+  const json = await res25.json();
+  console.log(JSON.stringify(json.data, null, 2));
+
+  // Simulating our backend filtering
+  const minDays = 7;
+  const limitDate = new Date();
+  limitDate.setDate(limitDate.getDate() - minDays);
+
+  const filtered = json.data.filter((ad: any) => {
+    const adDate = new Date(ad.ad_delivery_start_time);
+    return adDate <= limitDate;
+  });
+
+  console.log(`Original: ${json.data.length}, Filtered by minDays=${minDays}: ${filtered.length}`);
 }
 
 testV25()

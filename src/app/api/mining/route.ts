@@ -28,7 +28,7 @@ interface MetaApiResponse {
 export async function POST(request: Request) {
   try {
     const body = await request.json()
-    const { keyword, country = "BR", minAds = 1, minDays = 0 } = body
+    const { keyword, country = "BR", minAds = 1, minDays = 0, language = "ALL" } = body
 
     if (!keyword) {
       return NextResponse.json({ error: "Palavra-chave é obrigatória" }, { status: 400 })
@@ -59,13 +59,19 @@ export async function POST(request: Request) {
     let allAds: MetaAd[] = []
     let afterCursor = ""
     let pagesFetched = 0
-    const maxPages = 5 // Limite de 5 páginas para não estourar tempo de resposta (aprox ~500 anúncios dependendo do limite)
+    // Aumentado para 500 páginas (aprox ~50.000 anúncios)
+    // Nota: O Next.js tem limite de timeout de 60s em rotas hospedadas (Vercel), mas no node custom/vps ele roda liso.
+    const maxPages = 500 
 
     while (pagesFetched < maxPages) {
       const url = new URL("https://graph.facebook.com/v19.0/ads_archive")
       url.searchParams.append("access_token", accessToken)
       url.searchParams.append("search_terms", keyword)
       url.searchParams.append("ad_reached_countries", `['${country}']`)
+      
+      if (language !== "ALL") {
+        url.searchParams.append("languages", `['${language}']`)
+      }
       url.searchParams.append("ad_active_status", "ACTIVE")
       url.searchParams.append("ad_type", "ALL") // NECESSÁRIO p/ busca geral
       url.searchParams.append("fields", "page_id,page_name,ad_delivery_start_time,ad_snapshot_url")

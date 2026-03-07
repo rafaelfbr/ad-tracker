@@ -45,6 +45,7 @@ export default function MiningPage() {
   const [country, setCountry] = useState("BR")
   const [minAds, setMinAds] = useState(1)
   const [minDays, setMinDays] = useState(0)
+  const [language, setLanguage] = useState("ALL")
 
   // Tracking Modal State
   const [selectedPage, setSelectedPage] = useState<MiningResult | null>(null)
@@ -70,7 +71,7 @@ export default function MiningPage() {
       const res = await fetch("/api/mining", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ keyword, country, minAds, minDays }),
+        body: JSON.stringify({ keyword, country, minAds, minDays, language }),
       })
 
       const data = await res.json()
@@ -81,7 +82,7 @@ export default function MiningPage() {
         total_analizados: data.total_analizados || 0,
         pages_encontradas: data.pages_encontradas || 0
       })
-      toast.success(`Busca concluída: ${data.pages_encontradas} páginas encontradas`)
+      toast.success(`Busca concluída: ${data.pages_encontradas} páginas encontradas em ${(data.total_analizados).toLocaleString()} anúncios.`)
     } catch (error) {
       console.error(error)
       toast.error(`Erro: ${(error as Error).message}`)
@@ -189,6 +190,24 @@ export default function MiningPage() {
             </div>
 
             <div className="space-y-2">
+              <Label htmlFor="language" className="flex items-center gap-1.5 text-sm font-medium">
+                <Globe className="w-3.5 h-3.5" />
+                Idioma
+              </Label>
+              <select
+                id="language"
+                value={language}
+                onChange={(e) => setLanguage(e.target.value)}
+                className="flex h-11 w-full items-center justify-between rounded-xl border border-input bg-background px-3 py-2 text-sm ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring"
+              >
+                <option value="ALL">Todos Idiomas</option>
+                <option value="pt">Português (PT)</option>
+                <option value="en">Inglês (EN)</option>
+                <option value="es">Espanhol (ES)</option>
+              </select>
+            </div>
+
+            <div className="space-y-2">
               <Label htmlFor="minAds" className="flex items-center gap-1.5 text-sm font-medium">
                 <BarChart3 className="w-3.5 h-3.5" />
                 Mínimo de Ads Ativos
@@ -223,7 +242,7 @@ export default function MiningPage() {
                 {loading ? (
                   <>
                     <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                    Minerando...
+                    Buscando (pode demorar)...
                   </>
                 ) : (
                   <>
