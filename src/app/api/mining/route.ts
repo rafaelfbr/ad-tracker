@@ -66,7 +66,14 @@ export async function POST(request: Request) {
     const firstUrl = new URL("https://graph.facebook.com/v25.0/ads_archive")
     firstUrl.searchParams.append("access_token", accessToken)
     firstUrl.searchParams.append("search_terms", keyword)
-    firstUrl.searchParams.append("ad_reached_countries", JSON.stringify([country]))
+    // ad_reached_countries é obrigatório na API - se "ALL", usar "BR" como fallback
+    if (country !== "ALL") {
+      firstUrl.searchParams.append("ad_reached_countries", JSON.stringify([country]))
+    } else {
+      // A API exige ad_reached_countries, sem ele dá erro.
+      // Para "Mundo Todo" usamos BR como país padrão
+      firstUrl.searchParams.append("ad_reached_countries", JSON.stringify(["BR"]))
+    }
     
     if (language !== "ALL") {
       firstUrl.searchParams.append("languages", JSON.stringify([language]))
@@ -76,7 +83,7 @@ export async function POST(request: Request) {
     firstUrl.searchParams.append("ad_type", "ALL")
     firstUrl.searchParams.append("search_type", "KEYWORD_UNORDERED")
     firstUrl.searchParams.append("fields", "page_id,page_name,ad_delivery_start_time,ad_delivery_stop_time,ad_snapshot_url")
-    firstUrl.searchParams.append("limit", "500")
+    firstUrl.searchParams.append("limit", "25")
 
     // Paginação usando paging.next URL diretamente (método mais confiável)
     let allAds: MetaAd[] = []
@@ -109,10 +116,21 @@ export async function POST(request: Request) {
       allAds = [...allAds, ...ads]
       pagesFetched++
 
-      console.log(`[Mining] Página ${pagesFetched}: ${ads.length} anúncios (total: ${allAds.length})`)
+      console.log(`[Mining] Página ${pagesFetched}: ${ads.length} anúncios (total acumulado: ${allAds.length})`)
 
-      // Usar a URL completa de paging.next (já contém o cursor correto)
-      nextUrl = data.paging?.next || null
+      // Diagnóstico de paginação
+      if (data.paging?.next) {
+        nextUrl = data.paging.next
+      } else {
+        const reason = !data.paging 
+          ? "sem objeto paging na resposta" 
+          : !data.paging.next 
+            ? "paging existe mas sem .next" 
+            : "desconhecido"
+        console.log(`[Mining] Paginação parou: ${reason}`)
+        console.log(`[Mining] paging raw: ${JSON.stringify(data.paging)}`)
+        nextUrl = null
+      }
     }
 
     console.log(`[Mining] Coleta finalizada: ${allAds.length} anúncios em ${pagesFetched} páginas.`)

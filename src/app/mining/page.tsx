@@ -66,6 +66,8 @@ export default function MiningPage() {
 
     setLoading(true)
     setSearched(true)
+    setResults([])
+    setMetrics({ total_analizados: 0, pages_encontradas: 0 })
     
     try {
       const res = await fetch("/api/mining", {
@@ -185,7 +187,11 @@ export default function MiningPage() {
                 <option value="BR">Brasil (BR)</option>
                 <option value="US">Estados Unidos (US)</option>
                 <option value="PT">Portugal (PT)</option>
-                <option value="ALL">Mundo Todo (ALL)</option>
+                <option value="GB">Reino Unido (GB)</option>
+                <option value="DE">Alemanha (DE)</option>
+                <option value="ES">Espanha (ES)</option>
+                <option value="MX">México (MX)</option>
+                <option value="AR">Argentina (AR)</option>
               </select>
             </div>
 
