@@ -18,7 +18,12 @@ export default function SettingsPage() {
 
   async function fetchSettings() {
     try {
-      const res = await fetch("/api/settings?key=META_ACCESS_TOKEN")
+      const res = await fetch("/api/settings?key=META_ACCESS_TOKEN", {
+        cache: 'no-store',
+        headers: {
+          'Cache-Control': 'no-cache'
+        }
+      })
       if (res.ok) {
         const data = await res.json()
         setMetaToken(data.value || "")
