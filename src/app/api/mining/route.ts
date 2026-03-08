@@ -71,9 +71,8 @@ export async function POST(request: Request) {
     if (language !== "ALL") {
       firstUrl.searchParams.append("languages", JSON.stringify([language]))
     }
-    // Buscar TODOS os anúncios (ativos + inativos) para máxima cobertura
-    // O filtro de ativos é feito depois no agrupamento
-    firstUrl.searchParams.append("ad_active_status", "ALL")
+    // Buscar apenas anúncios ativos
+    firstUrl.searchParams.append("ad_active_status", "ACTIVE")
     firstUrl.searchParams.append("ad_type", "ALL")
     firstUrl.searchParams.append("search_type", "KEYWORD_UNORDERED")
     firstUrl.searchParams.append("fields", "page_id,page_name,ad_delivery_start_time,ad_delivery_stop_time,ad_snapshot_url")
@@ -160,12 +159,20 @@ export async function POST(request: Request) {
       }
     }
 
-    // Filtrar e converter pra array final
+    // Filtrar por anúncios ativos e converter pra array final
     const finalResults = Array.from(pagesMap.values())
-      .filter(p => p.count >= minAds)
+      .filter(p => p.active_count >= minAds)
+      .map(p => ({
+        page_id: p.page_id,
+        page_name: p.page_name,
+        count: p.active_count, // Mostrar apenas contagem de ativos
+        oldest_ad_date: p.oldest_ad_date,
+        library_url: p.library_url,
+      }))
       .sort((a, b) => b.count - a.count)
 
-    console.log(`[Mining] Resultado: ${finalResults.length} fan pages de ${allAds.length} anúncios analisados.`)
+    const totalActive = Array.from(pagesMap.values()).reduce((sum, p) => sum + p.active_count, 0)
+    console.log(`[Mining] Resultado: ${finalResults.length} fan pages, ${totalActive} ads ativos de ${allAds.length} total analisados.`)
 
     return NextResponse.json({
       results: finalResults,
