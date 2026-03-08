@@ -1,0 +1,35 @@
+=== TOKEN DEBUG ===
+{
+  "data": {
+    "app_id": "1276394737746514",
+    "type": "USER",
+    "application": "adtracker",
+    "data_access_expires_at": 1780702147,
+    "expires_at": 1778107142,
+    "is_valid": true,
+    "issued_at": 1772926411,
+    "profile_id": "2129709081179255",
+    "scopes": [
+      "ads_read",
+      "public_profile"
+    ],
+    "granular_scopes": [
+      {
+        "scope": "ads_read"
+      }
+    ],
+    "user_id": "2129709081179255"
+  }
+}
+
+=== TESTE SEM ad_type ===
+Sem ad_type: 30 ads, paging.next: true
+
+=== TESTE com ad_type=POLITICAL_AND_ISSUE_ADS ===
+POLITICAL: 1 ads, paging.next: true
+
+=== TESTE com keyword "marketing" ===
+marketing BR ad_type=ALL: 500 ads, paging.next: true
+
+=== TESTE com ad_active_status=ALL ===
+gelatina ALL status: 500 ads, paging.next: true

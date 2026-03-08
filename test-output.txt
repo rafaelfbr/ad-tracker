@@ -1,0 +1,16 @@
+﻿[dotenv@17.3.1] injecting env (7) from .env.local -- tip: ÔÜÖ´©Å  write to custom object with { processEnv: myObject }
+P├ígina 1: 43 ads (total: 43) | paging.next: true
+  cursor after: c2NyYXBpbmdfY3Vyc29yOk1UY3dOekk0TWpBd01Eb3hNekk0TV...
+P├ígina 2: 0 ads (total: 43) | paging.next: false
+  SEM mais p├íginas - parando
+
+=== RESULTADO FINAL ===
+Total de ads: 43
+Fan pages ├║nicas: 12
+
+Primeiros 5 ads:
+  1. Maria Clark (page_id: 700001206523997) - in├¡cio: 2026-03-06
+  2. Maria Clark (page_id: 700001206523997) - in├¡cio: 2026-03-06
+  3. Ns-ly-2 (page_id: 1014696095061937) - in├¡cio: 2026-03-06
+  4. Camila Fernanda (page_id: 1005796275952951) - in├¡cio: 2026-03-06
+  5. Camila Fernanda (page_id: 1005796275952951) - in├¡cio: 2026-03-06
