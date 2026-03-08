@@ -5,8 +5,7 @@ const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
 const supabaseServiceKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 const supabase = createClient(supabaseUrl, supabaseServiceKey)
 
-// Lista de domínios ignorados ao rastrear (removido facebook/instagram.com pois ad_snapshot_url vem deles)
-const IGNORED_DOMAINS = ["api.whatsapp.com", "wa.me", "ig.me", "m.me"]
+// Lista de domínios ignorados removida conforme solicitação do usuário
 
 interface MetaAd {
   page_id: string
@@ -108,7 +107,6 @@ export async function POST(request: Request) {
       count: number
       oldest_ad_date: string
       library_url: string
-      ignored_count: number // anúncios que parecem ir pro whatsapp/fb
     }>()
 
     for (const ad of allAds) {
@@ -116,25 +114,18 @@ export async function POST(request: Request) {
       const adDate = new Date(ad.ad_delivery_start_time)
       if (adDate > limitDate) continue
 
-      const isIgnored = IGNORED_DOMAINS.some(domain => ad.ad_snapshot_url?.toLowerCase().includes(domain))
-
       if (!pagesMap.has(ad.page_id)) {
         pagesMap.set(ad.page_id, {
           page_id: ad.page_id,
           page_name: ad.page_name,
           count: 0,
           oldest_ad_date: ad.ad_delivery_start_time,
-          library_url: `https://www.facebook.com/ads/library/?active_status=active&ad_type=all&country=${country}&view_all_page_id=${ad.page_id}&search_type=page`,
-          ignored_count: 0
+          library_url: `https://www.facebook.com/ads/library/?active_status=active&ad_type=all&country=${country}&view_all_page_id=${ad.page_id}&search_type=page`
         })
       }
 
       const page = pagesMap.get(ad.page_id)!
       page.count++
-      
-      if (isIgnored) {
-        page.ignored_count++
-      }
 
       if (new Date(ad.ad_delivery_start_time) < new Date(page.oldest_ad_date)) {
         page.oldest_ad_date = ad.ad_delivery_start_time
