@@ -1,11 +1,12 @@
 import { NextResponse } from "next/server"
 import { createClient } from "@supabase/supabase-js"
 
+export const dynamic = "force-dynamic"
+export const maxDuration = 300 // Permite até 5 minutos de execução
+
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
 const supabaseServiceKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 const supabase = createClient(supabaseUrl, supabaseServiceKey)
-
-// Lista de domínios ignorados removida conforme solicitação do usuário
 
 interface MetaAd {
   page_id: string
@@ -18,9 +19,15 @@ interface MetaApiResponse {
   data: MetaAd[]
   paging?: {
     cursors: {
+      before: string
       after: string
     }
     next?: string
+  }
+  error?: {
+    message: string
+    error_user_msg?: string
+    code: number
   }
 }
 
@@ -50,31 +57,32 @@ export async function POST(request: Request) {
       )
     }
 
-    // Calcula a data limite baseado no minDays (ad_delivery_start_time deve ser <= limitDate)
+    // Calcula a data limite baseado no minDays
     const limitDate = new Date()
     limitDate.setDate(limitDate.getDate() - minDays)
     
-    // Processamento da paginação até juntar 1000 anúncios ou acabar a busca
+    // Paginação - buscar até esgotar os resultados ou bater maxPages
     let allAds: MetaAd[] = []
     let afterCursor = ""
     let pagesFetched = 0
-    // Aumentado para 500 páginas (aprox ~50.000 anúncios)
-    // Nota: O Next.js tem limite de timeout de 60s em rotas hospedadas (Vercel), mas no node custom/vps ele roda liso.
-    const maxPages = 500 
+    const maxPages = 500
+
+    console.log(`[Mining] Iniciando busca: keyword="${keyword}", country="${country}", language="${language}"`)
 
     while (pagesFetched < maxPages) {
-      const url = new URL("https://graph.facebook.com/v19.0/ads_archive")
+      const url = new URL("https://graph.facebook.com/v25.0/ads_archive")
       url.searchParams.append("access_token", accessToken)
       url.searchParams.append("search_terms", keyword)
-      url.searchParams.append("ad_reached_countries", `['${country}']`)
+      url.searchParams.append("ad_reached_countries", JSON.stringify([country]))
       
       if (language !== "ALL") {
-        url.searchParams.append("languages", `['${language}']`)
+        url.searchParams.append("languages", JSON.stringify([language]))
       }
       url.searchParams.append("ad_active_status", "ACTIVE")
-      url.searchParams.append("ad_type", "ALL") // NECESSÁRIO p/ busca geral
+      url.searchParams.append("ad_type", "ALL")
+      url.searchParams.append("search_type", "KEYWORD_UNORDERED")
       url.searchParams.append("fields", "page_id,page_name,ad_delivery_start_time,ad_snapshot_url")
-      url.searchParams.append("limit", "100") // 100 por paginação pra ser mais rápido que o max 1000
+      url.searchParams.append("limit", "500")
       
       if (afterCursor) {
         url.searchParams.append("after", afterCursor)
@@ -83,9 +91,18 @@ export async function POST(request: Request) {
       const res = await fetch(url.toString())
       const data: MetaApiResponse = await res.json()
 
-      if (!res.ok) {
-        const err = data as any
-        const metaMessage = err.error?.error_user_msg || err.error?.message || "Erro desconhecido na Meta API"
+      if (!res.ok || data.error) {
+        const metaMessage = data.error?.error_user_msg || data.error?.message || "Erro desconhecido na Meta API"
+        const errorCode = data.error?.code
+        
+        console.error(`[Mining] Erro da Meta API (code: ${errorCode}): ${metaMessage}`)
+        
+        // Se for rate limit (code 613 ou 4), esperar e tentar de novo
+        if (errorCode === 613 || errorCode === 4) {
+          console.log(`[Mining] Rate limit atingido na página ${pagesFetched + 1}. Parando com ${allAds.length} anúncios coletados.`)
+          break
+        }
+        
         throw new Error(`Meta API: ${metaMessage}`)
       }
 
@@ -93,11 +110,18 @@ export async function POST(request: Request) {
       allAds = [...allAds, ...ads]
       pagesFetched++
 
-      if (data.paging && data.paging.next && data.paging.cursors?.after) {
+      console.log(`[Mining] Página ${pagesFetched}: ${ads.length} anúncios (total acumulado: ${allAds.length})`)
+
+      if (data.paging?.next && data.paging.cursors?.after) {
         afterCursor = data.paging.cursors.after
       } else {
-        break // acabou os resultados
+        console.log(`[Mining] Sem mais páginas. Total final: ${allAds.length} anúncios em ${pagesFetched} páginas.`)
+        break
       }
+    }
+
+    if (pagesFetched >= maxPages) {
+      console.log(`[Mining] Atingiu o limite de ${maxPages} páginas. Total: ${allAds.length} anúncios.`)
     }
 
     // Agrupar por page_id
@@ -111,8 +135,10 @@ export async function POST(request: Request) {
 
     for (const ad of allAds) {
       // Pular anúncios que começaram a rodar a menos tempo que o exigido
-      const adDate = new Date(ad.ad_delivery_start_time)
-      if (adDate > limitDate) continue
+      if (minDays > 0) {
+        const adDate = new Date(ad.ad_delivery_start_time)
+        if (adDate > limitDate) continue
+      }
 
       if (!pagesMap.has(ad.page_id)) {
         pagesMap.set(ad.page_id, {
@@ -135,9 +161,9 @@ export async function POST(request: Request) {
     // Filtrar e converter pra array final
     const finalResults = Array.from(pagesMap.values())
       .filter(p => p.count >= minAds)
-      // Filtro removido pois o ad_snapshot_url não traz a URL final de forma confiável nesta versão da API
-      // .filter(p => p.count > p.ignored_count)
       .sort((a, b) => b.count - a.count)
+
+    console.log(`[Mining] Resultado: ${finalResults.length} fan pages de ${allAds.length} anúncios analisados.`)
 
     return NextResponse.json({
       results: finalResults,
