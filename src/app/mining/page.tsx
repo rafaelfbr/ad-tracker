@@ -184,6 +184,7 @@ export default function MiningPage() {
                 onChange={(e) => setCountry(e.target.value)}
                 className="flex h-11 w-full items-center justify-between rounded-xl border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
               >
+                <option value="ALL">Mundo Todo (Tudo)</option>
                 <option value="BR">Brasil (BR)</option>
                 <option value="US">Estados Unidos (US)</option>
                 <option value="PT">Portugal (PT)</option>

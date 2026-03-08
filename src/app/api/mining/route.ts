@@ -66,13 +66,9 @@ export async function POST(request: Request) {
     const firstUrl = new URL("https://graph.facebook.com/v25.0/ads_archive")
     firstUrl.searchParams.append("access_token", accessToken)
     firstUrl.searchParams.append("search_terms", keyword)
-    // ad_reached_countries é obrigatório na API - se "ALL", usar "BR" como fallback
+    // Se "Tudo" for selecionado, não enviamos o parâmetro de país para buscar no mundo todo
     if (country !== "ALL") {
       firstUrl.searchParams.append("ad_reached_countries", JSON.stringify([country]))
-    } else {
-      // A API exige ad_reached_countries, sem ele dá erro.
-      // Para "Mundo Todo" usamos BR como país padrão
-      firstUrl.searchParams.append("ad_reached_countries", JSON.stringify(["BR"]))
     }
     
     if (language !== "ALL") {
