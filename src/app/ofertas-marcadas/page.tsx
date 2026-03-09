@@ -243,19 +243,37 @@ export default function DashboardPage() {
                         {tracker.niche}
                       </span>
                     </div>
-                    <div className="flex items-center gap-4 text-xs text-muted-foreground">
-                      <a
-                        href={tracker.offer_url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex items-center gap-1 text-primary hover:underline truncate max-w-xs"
-                      >
-                        <ExternalLink className="w-3 h-3 flex-shrink-0" />
-                        {tracker.offer_url.length > 40
-                          ? tracker.offer_url.substring(0, 40) + "..."
-                          : tracker.offer_url}
-                      </a>
-                      <span>Coleta: {formatDate(tracker.last_scraped_at)}</span>
+                    <div className="flex flex-col gap-1.5 text-xs text-muted-foreground mt-3">
+                      <div className="flex items-center gap-4">
+                        <a
+                          href={tracker.offer_url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex items-center gap-1 text-primary hover:underline truncate max-w-xs"
+                        >
+                          <ExternalLink className="w-3 h-3 flex-shrink-0" />
+                          <span className="font-medium text-foreground">Vendas:</span> {tracker.offer_url.length > 30
+                            ? tracker.offer_url.substring(0, 30) + "..."
+                            : tracker.offer_url}
+                        </a>
+                        <span>Coleta: {formatDate(tracker.last_scraped_at)}</span>
+                      </div>
+                      
+                      {tracker.library_url && (
+                        <div className="flex items-center gap-1.5 border-t border-border/30 pt-1.5 mt-0.5">
+                          <a
+                            href={tracker.library_url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="flex items-center gap-1 text-blue-500 hover:text-blue-600 hover:underline truncate max-w-sm"
+                          >
+                            <ExternalLink className="w-3 h-3 flex-shrink-0" />
+                            <span className="font-medium text-foreground">Biblioteca:</span> {tracker.library_url.length > 50
+                              ? tracker.library_url.substring(0, 50) + "..."
+                              : tracker.library_url}
+                          </a>
+                        </div>
+                      )}
                     </div>
                   </div>
 
